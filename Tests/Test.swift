@@ -36,6 +36,16 @@ extension Rational: Randable {
   }
 }
 
+extension Rational {
+  /// A property which tests if the fraction is in its simplest form.
+  /// Should always be `true`.
+  private var isSimplest: Bool {
+    var (a,b) = (UIntMax(abs(num)), den)
+    while b != 0 { (a,b) = (b,a%b) }
+    return a == 1
+  }
+}
+
 let n = 1000
 
 class RationalTests: XCTestCase {
@@ -45,6 +55,8 @@ class RationalTests: XCTestCase {
       let (c,d) = (UIntMax.rand,UIntMax.rand)
       let ac = a /% c
       let bd = b /% d
+      XCTAssert(ac.isSimplest)
+      XCTAssert(bd.isSimplest)
       let acd = Double(a) / Double(c)
       let bdd = Double(b) / Double(d)
       XCTAssert(closeEnough(ac, acd))
@@ -54,11 +66,12 @@ class RationalTests: XCTestCase {
   func testOperation<A,B>(op: (Rational,Rational) -> A, dop: (Double,Double) -> B, isEq: (A,B) -> Bool) {
     for _ in 0..<n {
       let (a,b) = (Rational.rand,Rational.rand)
+      XCTAssert(a.isSimplest)
+      XCTAssert(b.isSimplest)
       if closeEnough(a,b.double) { continue }
       XCTAssert(isEq(op(a,b), dop(a.double, b.double)), String(a) + ", " + String(b))
     }
   }
-  
   func testAddition() {
     testOperation(+, dop: +, isEq: closeEnough)
   }

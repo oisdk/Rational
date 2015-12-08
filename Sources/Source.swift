@@ -1,16 +1,38 @@
 infix operator /% {associativity right precedence 100 }
 
+/// A rational number type, which stores the numerator and denominator
+/// for a fraction. 
+///
+/// The only exposed initialiser for the struct automatically simplifies
+/// before storing. The user cannot manually adjust the numerator and
+/// denominator. This ensures that the fraction is always stored in its 
+/// simplest form:
+///
+/// ```swift
+/// String(6 /% 8) == 3/4
+/// ```
+///
+/// The numerator is stored as the maximum-sized signed integer type, 
+/// and the denominator is stored as the maximum-sized unsigned integer
+/// type.
+
 public struct Rational {
-  private let num: IntMax
-  private let den: UIntMax
+  public let num: IntMax
+  public let den: UIntMax
+}
+
+extension Rational {
+  public init(_ num: IntMax, _ den: UIntMax) {
+    let unum = UIntMax(abs(num))
+    let g = gcd(unum,den)
+    let n = unum / g
+    self.num = num < 0 ? -IntMax(n) : IntMax(n)
+    self.den = den / g
+  }
 }
 
 public func /%(lhs: IntMax, rhs: UIntMax) -> Rational {
-  if lhs < 0 { return -(-lhs /% rhs) }
-  let ulhs = UIntMax(lhs)
-  let g = gcd(ulhs,rhs)
-  let (n,d) = (ulhs / g, rhs / g)
-  return Rational(num: IntMax(n), den: d)
+  return Rational(lhs,rhs)
 }
 
 public func /%(lhs: Int, rhs: Int) -> Rational {
@@ -26,7 +48,7 @@ private func gcd<I: protocol<IntegerArithmeticType, IntegerLiteralConvertible>>(
 extension Rational: CustomStringConvertible {
   public var description: String {
     if den == 1 { return String(num) }
-    return String(num) + " / " + String(den)
+    return String(num) + "/" + String(den)
   }
 }
 
@@ -62,7 +84,7 @@ public func <(lhs: Rational, rhs: Rational) -> Bool {
   case (true ,true ): return -rhs < -lhs
   case (false,true ): return false
   case (true ,false): return true
-  case (false,false): return lhs.num * IntMax(rhs.den) < rhs.num * IntMax(lhs.den)
+  case (false,false): return UIntMax(lhs.num) * rhs.den < UIntMax(rhs.num) * lhs.den
   }
 }
 
@@ -88,6 +110,9 @@ extension Rational: Strideable {
 }
 
 extension Rational {
+  
+  /// The `Double` representation of `self`.
+  
   public var double: Double {
     return Double(num) / Double(den)
   }
