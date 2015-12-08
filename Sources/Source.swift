@@ -29,6 +29,10 @@ extension Rational {
     self.num = num < 0 ? -IntMax(n) : IntMax(n)
     self.den = den / g
   }
+  public init(_ n: Int) {
+    num = IntMax(n)
+    den = 1
+  }
 }
 
 public func /%(lhs: IntMax, rhs: UIntMax) -> Rational {
@@ -115,5 +119,22 @@ extension Rational {
   
   public var double: Double {
     return Double(num) / Double(den)
+  }
+}
+
+extension Rational {
+  
+  /// The reciprocal of self
+  ///
+  /// ```swift
+  /// String((3 /% 4).reciprocal) == 4/3
+  /// ```
+  
+  public var reciprocal: Rational {
+    if num < 0 {
+      return Rational(num: -IntMax(den), den: UIntMax(abs(num)))
+    } else {
+      return Rational(num: IntMax(den), den: UIntMax(num))
+    }
   }
 }

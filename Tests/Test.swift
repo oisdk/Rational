@@ -90,4 +90,36 @@ class RationalTests: XCTestCase {
   func testEq() {
     testOperation(==, dop: ==, isEq: ==)
   }
+  func testCommutivity() {
+    for _ in 0..<n {
+      let (a,b) = (Rational.rand,Rational.rand)
+      XCTAssertEqual(a + b, b + a)
+      XCTAssertEqual(a * b, b * a)
+    }
+  }
+  func testReciprocal() {
+    for _ in 0..<n {
+      let r = Rational.rand
+      XCTAssertEqual(r.reciprocal, 1 / r)
+    }
+  }
+  func testAssociativity() {
+    for _ in 0..<n {
+      let (a,b,c) = (Rational.rand,Rational.rand,Rational.rand)
+      XCTAssertEqual((a+b)+c, a+(b+c))
+      XCTAssertEqual((a*b)*c, a*(b*c))
+    }
+  }
+  func testStrides() {
+    for _ in 0..<n {
+      let i = Int(arc4random_uniform(20)) + 1
+      let l = Rational(i)
+      let s = Int(arc4random_uniform(100)) + 1
+      var c = 0
+      for _ in Rational(0).stride(to: l, by: (1 /% s)) {
+        c += 1
+      }
+      XCTAssertEqual(c, s*i)
+    }
+  }
 }
