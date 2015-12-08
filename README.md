@@ -1,4 +1,4 @@
-https://travis-ci.org/oisdk/Rational.svg
+![travis](https://travis-ci.org/oisdk/Rational.svg)
 
 # Rational
 
